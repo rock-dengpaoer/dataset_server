@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xdt.dataset_server.Dao.MinioObjectDao">
+    <insert id="insertMinioObject">
+        insert into tb_object(uuid, bucket_name, object_name, type, size, upload_time, user_uuid) VALUES
+            (#{uuid}, #{bucketName}, #{objectName}, #{type}, #{size}, #{uploadTime}, #{userUuid});
+    </insert>
+
+    <select id="selectAllObjectByBucketName" resultType="com.xdt.dataset_server.entity.MinioObject"
+            parameterType="java.lang.String">
+        select uuid, bucket_name, object_name, type, size, upload_time, user_uuid
+        from tb_object where bucket_name = #{bucketName}  ORDER BY upload_time
+    </select>
+
+</mapper>

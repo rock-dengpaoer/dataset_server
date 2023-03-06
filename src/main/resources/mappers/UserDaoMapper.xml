@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xdt.dataset_server.Dao.UserDao">
+    <insert id="insertUser" parameterType="com.xdt.dataset_server.entity.User">
+        insert into tb_user(uuid, email,name, password,phone,job,address,is_authentication,ID_number,create_time,update_time,portrait_uuid,introduce) VALUES
+            (#{uuid}, #{email}, #{name}, #{password}, #{phone}, #{job}, #{address}, #{isAuthentication}, #{idNumber}, #{createTime}, #{updateTime}, #{portraitUuid}, #{introduce})
+    </insert>
+    <update id="updateUser" parameterType="com.xdt.dataset_server.entity.User">
+        update tb_user set email = #{email}, name=#{name}, phone=#{phone}, update_time=#{updateTime} WHERE uuid = #{uuid}
+    </update>
+    <delete id="delUser" parameterType="java.lang.String">
+        DELETE FROM tb_user WHERE uuid = #{uuid}
+    </delete>
+
+    <select id="SelectAllUser" resultType="com.xdt.dataset_server.entity.User">
+        SELECT * from tb_user;
+    </select>
+    <select id="selectAllUserOnlyName" resultType="com.xdt.dataset_server.entity.User">
+        SELECT name from tb_user;
+    </select>
+    <select id="selectAllUserByField" resultType="com.xdt.dataset_server.entity.User">
+        SELECT uuid, email, name, password, phone, job, address, is_authentication, ID_number, create_time, update_time, portrait_uuid, introduce from tb_user;
+    </select>
+    <select id="findByUname" resultType="com.xdt.dataset_server.entity.User" parameterType="java.lang.String">
+        SELECT uuid, email, name, password, phone, job, address, is_authentication, ID_number, create_time, update_time, portrait_uuid, introduce from tb_user WHERE name = #{uname};
+    </select>
+    <select id="findByUnameAndPassword" resultType="com.xdt.dataset_server.entity.User">
+        SELECT uuid, email, name, password, phone, job, address, is_authentication, ID_number, create_time, update_time, portrait_uuid, introduce from tb_user WHERE name = #{uname} and password = #{password};
+    </select>
+    <select id="selectUserByUuid" resultType="com.xdt.dataset_server.entity.User" parameterType="java.lang.String">
+        SELECT uuid, email, name, password, phone, job, address, is_authentication, ID_number, create_time, update_time, portrait_uuid, introduce from tb_user WHERE uuid = #{uuid};
+    </select>
+</mapper>

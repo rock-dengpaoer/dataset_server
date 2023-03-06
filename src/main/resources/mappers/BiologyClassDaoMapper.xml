@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xdt.dataset_server.Dao.BiologyClassDao">
+    <insert id="insertBioloyClass">
+        insert into biology_class(uuid, name_cn, name_latin, introduce, create_time, update_time, user_uuid) VALUES
+            (#{uuid}, #{nameCn}, #{nameLatin}, #{introduce}, #{createTime}, #{updateTime}, #{userUuid})
+    </insert>
+
+    <select id="selectAllBioloyClass" resultType="com.xdt.dataset_server.entity.BiologyClass">
+        SELECT uuid, name_cn, name_latin, introduce, create_time, update_time, user_uuid FROM biology_class ORDER BY create_time
+    </select>
+</mapper>

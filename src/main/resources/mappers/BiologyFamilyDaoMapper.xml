@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xdt.dataset_server.Dao.BiologyFamilyDao">
+    <insert id="insertBiologyFamily">
+        insert into biology_family(uuid, name_cn, name_latin, introduce, create_time, update_time, user_uuid, order_uuid) VALUES
+            (#{uuid}, #{nameCn}, #{nameLatin}, #{introduce}, #{createTime}, #{updateTime}, #{userUuid}, #{orderUuid})
+    </insert>
+    <select id="selectAllBiologyFamilyByOrderUuid" resultType="com.xdt.dataset_server.entity.BiologyFamily"
+            parameterType="java.lang.String">
+        SELECT uuid, name_cn, name_latin, introduce, create_time, update_time, order_uuid, user_uuid
+        FROM biology_family WHERE order_uuid = #{orderUuid} ORDER BY create_time
+    </select>
+</mapper>
