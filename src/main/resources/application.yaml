@@ -1,5 +1,5 @@
 server:
-  port: 8000
+  port: 8080
 
 
 spring:
@@ -11,6 +11,7 @@ spring:
   servlet:
     multipart:
       max-file-size: 50MB
+      max-request-size: 50MB
 
 #minio配置
 #配置访问的地址
@@ -28,4 +29,3 @@ mybatis:
   configuration:
     map-underscore-to-camel-case: true
 debug: true
-

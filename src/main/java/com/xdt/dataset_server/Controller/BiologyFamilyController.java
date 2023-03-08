@@ -5,6 +5,7 @@ import cn.hutool.core.util.IdUtil;
 import com.xdt.dataset_server.Server.Impl.BiologyFamilyServiceImpl;
 import com.xdt.dataset_server.entity.BiologyFamily;
 import com.xdt.dataset_server.entity.BiologyOrder;
+import com.xdt.dataset_server.utils.Gadget;
 import com.xdt.dataset_server.utils.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,16 @@ public class BiologyFamilyController {
         if(biologyFamily.getNameCn() == null || biologyFamily.getNameLatin() == null || biologyFamily.getOrderUuid() == null){
             return Result.error("300", "参数格式错误");
         }
+
+        if(!biologyFamily.getNameLatin().matches("^[0-9a-zA-Z]+$")){
+            return Result.error("300", "拉丁名不符合命名规范");
+        }
+
+        /*将首字母大写*/
+        String NameLatin = Gadget.isUppercase(biologyFamily.getNameLatin());
+        biologyFamily.setNameLatin(NameLatin);
+
+
         System.out.println("biologyFamily is " +biologyFamily);
         biologyFamily.setUuid(IdUtil.simpleUUID());
         biologyFamily.setCreateTime(DateUtil.date(System.currentTimeMillis()));

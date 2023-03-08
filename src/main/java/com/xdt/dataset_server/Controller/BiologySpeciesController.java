@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
 import com.xdt.dataset_server.Server.Impl.BiologySpeciesServiceImpl;
 import com.xdt.dataset_server.entity.BiologySpecies;
+import com.xdt.dataset_server.utils.Gadget;
 import com.xdt.dataset_server.utils.MinioUtil;
 import com.xdt.dataset_server.utils.Msg;
 import com.xdt.dataset_server.utils.Result;
@@ -38,6 +39,16 @@ public class BiologySpeciesController {
         if(biologySpecies.getNameCn() == null || biologySpecies.getNameLatin() == null || biologySpecies.getFamilyUuid() == null){
             return Result.error("300", "参数格式错误");
         }
+
+        if(!biologySpecies.getNameLatin().matches("^[0-9a-zA-Z]+$")){
+            return Result.error("300", "拉丁名不符合命名规范");
+        }
+
+        /*将首字母大写*/
+        String NameLatin = Gadget.isUppercase(biologySpecies.getNameLatin());
+        biologySpecies.setNameLatin(NameLatin);
+
+
         System.out.println("biologySpecies is " +biologySpecies);
         biologySpecies.setUuid(IdUtil.simpleUUID());
         biologySpecies.setCreateTime(DateUtil.date(System.currentTimeMillis()));

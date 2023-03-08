@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
 import com.xdt.dataset_server.Server.Impl.BiologyClassServerImpl;
 import com.xdt.dataset_server.entity.BiologyClass;
+import com.xdt.dataset_server.utils.Gadget;
 import com.xdt.dataset_server.utils.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,15 @@ public class BiologyClassController {
         if(biologyClass.getNameCn() == null || biologyClass.getNameLatin() == null ){
             return Result.error("300", "参数格式错误");
         }
+
+        if(!biologyClass.getNameLatin().matches("^[0-9a-zA-Z]+$")){
+            return Result.error("300", "拉丁名不符合命名规范");
+        }
+
+        /*将首字母大写*/
+        String NameLatin = Gadget.isUppercase(biologyClass.getNameLatin());
+        biologyClass.setNameLatin(NameLatin);
+
         System.out.println("biologyClass is " +biologyClass);
         biologyClass.setUuid(IdUtil.simpleUUID());
         biologyClass.setCreateTime(DateUtil.date(System.currentTimeMillis()));

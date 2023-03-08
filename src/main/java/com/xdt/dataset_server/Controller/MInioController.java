@@ -59,7 +59,7 @@ public class MInioController {
             MinioObject minioObject = new MinioObject();
             minioObject.setUuid(IdUtil.simpleUUID());
             minioObject.setObjectName(objectInfo.getName());
-            minioObject.setType(objectInfo.getType());
+            minioObject.setType(file.getContentType());
             minioObject.setSize(objectInfo.getSize());
             minioObject.setUserUuid(userUuid);
             minioObject.setUploadTime(new Date());

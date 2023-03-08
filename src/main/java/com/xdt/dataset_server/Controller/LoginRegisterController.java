@@ -51,7 +51,8 @@ public class LoginRegisterController {
         }
     }
 
-    @PostMapping("/register")
+    /*暂时不开放注册*/
+    //@PostMapping("/register")
     public Result registController(@RequestBody User newUser){
         newUser.setUuid(IdUtil.simpleUUID());
         User user = userServer.registService(newUser);
