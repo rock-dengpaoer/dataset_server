@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xdt.dataset_server.Dao.BiologyDao">
+
+    <select id="getAllNameBySpeciesUuid" resultType="com.xdt.dataset_server.entity.BiologyAllName"
+            parameterType="java.lang.String">
+        SELECT
+            class_name.name_latin AS class_latin_name,
+            family_name.name_latin AS family_latin_name,
+            order_name.name_latin AS order_latin_name,
+            species_name.name_latin AS species_latin_name
+        FROM
+            biology_class AS class_name
+                INNER JOIN
+            biology_order AS order_name
+            ON
+                class_name.uuid = order_name.class_uuid
+                INNER JOIN
+            biology_family AS family_name
+            ON
+                order_name.uuid = family_name.order_uuid
+                INNER JOIN
+            biology_species AS species_name
+            ON
+                family_name.uuid = species_name.family_uuid
+        WHERE
+            species_name.uuid = #{uuid};
+
+    </select>
+</mapper>

@@ -19,8 +19,11 @@ import java.util.List;
 @Service("BiologySpeciesService")
 public class BiologySpeciesServiceImpl implements BiologySpeciesService {
 
-    @Autowired
-    private BiologySpeciesDao biologySpeciesDao;
+    private final BiologySpeciesDao biologySpeciesDao;
+
+    public BiologySpeciesServiceImpl(BiologySpeciesDao biologySpeciesDao) {
+        this.biologySpeciesDao = biologySpeciesDao;
+    }
 
     @Override
     public List<BiologySpecies> selectAllBiologySpeciesByFamilyUuid(String familyUuid) {
@@ -48,5 +51,10 @@ public class BiologySpeciesServiceImpl implements BiologySpeciesService {
     @Override
     public Integer CountAllBiologySpecies() {
         return biologySpeciesDao.CountAllBiologySpecies();
+    }
+
+    @Override
+    public BiologySpecies selectByUuid(String uuid) {
+        return biologySpeciesDao.selectByUuid(uuid);
     }
 }

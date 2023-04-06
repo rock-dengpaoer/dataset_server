@@ -4,18 +4,12 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONUtil;
 import com.xdt.dataset_server.Server.Impl.*;
 import com.xdt.dataset_server.entity.*;
-import com.xdt.dataset_server.utils.MinioUtil;
-import com.xdt.dataset_server.utils.Msg;
 import com.xdt.dataset_server.utils.Result;
 import com.github.pagehelper.Page;
-import io.minio.messages.Bucket;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author XDT
@@ -27,20 +21,23 @@ import java.util.Map;
 @RequestMapping("/public")
 @Slf4j
 public class PublicController {
-    @Autowired
-    private BiologyClassServerImpl biologyClassServer;
+    private final BiologyClassServerImpl biologyClassServer;
 
-    @Autowired
-    private BiologyOrderServiceImpl biologyOrderService;
+    private final BiologyOrderServiceImpl biologyOrderService;
 
-    @Autowired
-    private BiologyFamilyServiceImpl biologyFamilyService;
+    private final BiologyFamilyServiceImpl biologyFamilyService;
 
-    @Autowired
-    private BiologySpeciesServiceImpl biologySpeciesService;
+    private final BiologySpeciesServiceImpl biologySpeciesService;
 
-    @Autowired
-    private MinioObjectServiceImpl minioObjectService;
+    private final BiologyServiceImpl biologyService;
+
+    public PublicController(BiologyClassServerImpl biologyClassServer, BiologyOrderServiceImpl biologyOrderService, BiologyFamilyServiceImpl biologyFamilyService, BiologySpeciesServiceImpl biologySpeciesService, BiologyServiceImpl biologyService) {
+        this.biologyClassServer = biologyClassServer;
+        this.biologyOrderService = biologyOrderService;
+        this.biologyFamilyService = biologyFamilyService;
+        this.biologySpeciesService = biologySpeciesService;
+        this.biologyService = biologyService;
+    }
 
     /*查询所有纲*/
     @GetMapping("/selectAllBioloyClass")
@@ -209,5 +206,12 @@ public class PublicController {
     public Result countAllBiologySpecies(){
         System.out.println("get into selectAllBioloySpecies");
         return Result.success(biologySpeciesService.CountAllBiologySpecies());
+    }
+
+    @GetMapping("/getAllNameBySpeciesUuid")
+    public Result getAllNameBySpeciesUuid(@RequestParam String speciesUuid){
+        BiologyAllName allName = biologyService.getAllNameBySpeciesUuid(speciesUuid);
+        //String name = allName.getClassLatinName() + "_" + allName.getOrderLatinName() + "_" + allName.getFamilyLatinName() + "_" + allName.getSpeciesLatinName();
+        return Result.success(allName.toString());
     }
 }

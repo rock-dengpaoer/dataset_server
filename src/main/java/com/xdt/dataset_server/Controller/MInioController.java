@@ -3,23 +3,31 @@ package com.xdt.dataset_server.Controller;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.github.pagehelper.Page;
+import com.xdt.dataset_server.Server.Impl.BiologySpeciesServiceImpl;
 import com.xdt.dataset_server.Server.Impl.MinioObjectServiceImpl;
+import com.xdt.dataset_server.entity.BiologySpecies;
 import com.xdt.dataset_server.entity.MinioObject;
 import com.xdt.dataset_server.entity.MinioObjectPagination;
 import com.xdt.dataset_server.entity.ObjectInfo;
 import com.xdt.dataset_server.utils.MinioUtil;
 import com.xdt.dataset_server.utils.Msg;
 import com.xdt.dataset_server.utils.Result;
+import com.xdt.dataset_server.utils.ThumbnailUtil;
 import io.minio.errors.*;
 import io.minio.messages.Bucket;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
+import java.io.*;
+import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
@@ -38,29 +46,60 @@ import java.util.Map;
 @RequestMapping("/minio/")
 public class MInioController {
 
-    @Autowired
-    private MinioUtil minioUtil;
+    private final MinioUtil minioUtil;
 
-    @Autowired
-    private MinioObjectServiceImpl minioObjectService;
+    private final MinioObjectServiceImpl minioObjectService;
+
+    private final ThumbnailUtil thumbnailUtil;
+
+    private final BiologySpeciesServiceImpl biologySpeciesService;
+
+    public MInioController(MinioUtil minioUtil, MinioObjectServiceImpl minioObjectService, ThumbnailUtil thumbnailUtil, BiologySpeciesServiceImpl biologySpeciesService) {
+        this.minioUtil = minioUtil;
+        this.minioObjectService = minioObjectService;
+        this.thumbnailUtil = thumbnailUtil;
+        this.biologySpeciesService = biologySpeciesService;
+    }
 
     @PostMapping(value = {"insertMinioObject"}, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Result insertMinioObject(String speciesUuid,
                                     @RequestParam("file") MultipartFile file,
                                     HttpServletRequest request){
+
+
         Msg msg;
         try {
             msg = minioUtil.putObject(file, speciesUuid);
             ObjectInfo objectInfo = minioUtil.statObject(speciesUuid, msg.getMsg2());
+
+            //制作缩略图
+            InputStream object = minioUtil.getObject(speciesUuid, objectInfo.getName());
+            String newName = thumbnailUtil.getThumbnail(object, objectInfo.getName());
+            File newFile = new File(newName);
+            long fileSize = newFile.length();
+            InputStream input = Files.newInputStream(Paths.get(newName));
+            Path path = new File(newName).toPath();
+            String mimeType = Files.probeContentType(path);
+            Msg msg1 = minioUtil.putObjectByInputStream(input, speciesUuid, newName, fileSize, mimeType);
+            input.close();
+            if(newFile.delete()){
+                log.warn(newFile.getName() + " 文件已被删除！");
+            }else{
+                log.error(newFile.getName() + " 文件删除失败！");
+            }
+            //Msg msg1 = minioUtil.putObjectByInputStream(object, speciesUuid, objectInfo.getName(), objectInfo.getStatus(), "img/jpeg");
+
+
+
 
             String userUuid = request.getAttribute("userUuid").toString();
             System.out.println(userUuid);
 
             MinioObject minioObject = new MinioObject();
             minioObject.setUuid(IdUtil.simpleUUID());
-            minioObject.setObjectName(objectInfo.getName());
-            minioObject.setType(file.getContentType());
-            minioObject.setSize(objectInfo.getSize());
+            minioObject.setObjectName(newName);
+            minioObject.setType(mimeType);
+            minioObject.setSize((double) fileSize);
             minioObject.setUserUuid(userUuid);
             minioObject.setUploadTime(new Date());
             minioObject.setBucketName(speciesUuid);

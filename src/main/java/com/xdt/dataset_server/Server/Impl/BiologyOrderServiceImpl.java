@@ -2,11 +2,9 @@ package com.xdt.dataset_server.Server.Impl;
 
 import com.xdt.dataset_server.Dao.BiologyOrderDao;
 import com.xdt.dataset_server.Server.BiologyOrderService;
-import com.xdt.dataset_server.entity.BiologyClass;
 import com.xdt.dataset_server.entity.BiologyOrder;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,8 +18,11 @@ import java.util.List;
 @Service("BiologyOrderService")
 public class BiologyOrderServiceImpl implements BiologyOrderService {
 
-    @Autowired
-    private BiologyOrderDao biologyOrderDao;
+    private final BiologyOrderDao biologyOrderDao;
+
+    public BiologyOrderServiceImpl(BiologyOrderDao biologyOrderDao) {
+        this.biologyOrderDao = biologyOrderDao;
+    }
 
     @Override
     public List<BiologyOrder> selectBiologyOrderByClassUuid(String classUuid) {

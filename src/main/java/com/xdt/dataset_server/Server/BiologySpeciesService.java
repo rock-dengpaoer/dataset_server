@@ -15,4 +15,7 @@ public interface BiologySpeciesService {
 
     /*统计所有种类的个数*/
     Integer CountAllBiologySpecies();
+
+    //通过uuid查询物种信息
+    BiologySpecies selectByUuid(String uuid);
 }

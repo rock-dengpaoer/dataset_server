@@ -16,4 +16,9 @@
     <select id="CountAllBiologySpecies" resultType="java.lang.Integer">
         SELECT count(*) from biology_species;
     </select>
+    <select id="selectByUuid" resultType="com.xdt.dataset_server.entity.BiologySpecies"
+            parameterType="java.lang.String">
+        SELECT uuid, name_cn, name_latin, create_time, update_time, family_uuid, user_uuid, point1, point2, point3, point4, point5
+        FROM biology_species WHERE uuid = #{uuid};
+    </select>
 </mapper>

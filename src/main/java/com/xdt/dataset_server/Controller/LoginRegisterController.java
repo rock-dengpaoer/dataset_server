@@ -1,5 +1,6 @@
 package com.xdt.dataset_server.Controller;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
 import com.xdt.dataset_server.Server.Impl.TokenServiceImpl;
 import com.xdt.dataset_server.Server.Impl.UserServerImpl;
@@ -53,15 +54,17 @@ public class LoginRegisterController {
 
     /*暂时不开放注册*/
     //@PostMapping("/register")
-    public Result registController(@RequestBody User newUser){
-        newUser.setUuid(IdUtil.simpleUUID());
-        User user = userServer.registService(newUser);
-        if(user!=null){
-            return Result.success(user,"注册成功！");
-        }else{
-            return Result.error("456","用户名已存在！");
-        }
-    }
+    //public Result registController(@RequestBody User newUser){
+    //    newUser.setUuid(IdUtil.simpleUUID());
+    //    newUser.setCreateTime(DateUtil.date());
+    //    newUser.setUpdateTime(DateUtil.date());
+    //    User user = userServer.registService(newUser);
+    //    if(user!=null){
+    //        return Result.success(user,"注册成功！");
+    //    }else{
+    //        return Result.error("456","用户名已存在！");
+    //    }
+    //}
 
     @GetMapping("/hello")
     public String hello(){

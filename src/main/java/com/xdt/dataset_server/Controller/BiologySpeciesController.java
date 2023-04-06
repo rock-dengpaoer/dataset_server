@@ -28,11 +28,14 @@ import javax.servlet.http.HttpServletRequest;
 @Slf4j
 public class BiologySpeciesController {
 
-    @Autowired
-    private BiologySpeciesServiceImpl biologySpeciesService;
+    private final BiologySpeciesServiceImpl biologySpeciesService;
 
-    @Autowired
-    private MinioUtil minioUtil;
+    private final MinioUtil minioUtil;
+
+    public BiologySpeciesController(BiologySpeciesServiceImpl biologySpeciesService, MinioUtil minioUtil) {
+        this.biologySpeciesService = biologySpeciesService;
+        this.minioUtil = minioUtil;
+    }
 
     @PostMapping("insertBiologySpecies")
     public Result insertBiologySpecies(@RequestBody BiologySpecies biologySpecies, HttpServletRequest request){
@@ -40,7 +43,7 @@ public class BiologySpeciesController {
             return Result.error("300", "参数格式错误");
         }
 
-        if(!biologySpecies.getNameLatin().matches("^[0-9a-zA-Z]+$")){
+        if(!biologySpecies.getNameLatin().matches("^(\\w+ ?)*$")){
             return Result.error("300", "拉丁名不符合命名规范");
         }
 
