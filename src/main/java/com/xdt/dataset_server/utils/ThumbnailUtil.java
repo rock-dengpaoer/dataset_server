@@ -1,13 +1,12 @@
 package com.xdt.dataset_server.utils;
 
 import net.coobird.thumbnailator.Thumbnails;
+import net.coobird.thumbnailator.geometry.Positions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import javax.imageio.ImageIO;
+import java.io.*;
 import java.util.List;
 
 /**
@@ -23,7 +22,11 @@ public class ThumbnailUtil {
     public String getThumbnail(InputStream inputStream, String imgName) throws IOException {
         String[] split = imgName.split("\\.");
         String oldName = split[0];
-        Thumbnails.of(inputStream).size(500, 500).outputFormat("jpg").toFile(oldName + "_new.jpg");
+        Thumbnails.of(inputStream)
+                .size(500, 500)
+                .outputFormat("jpg")
+                .watermark(Positions.CENTER, ImageIO.read(new File("watermark.png")), 0.5f)
+                .toFile(oldName + "_new.jpg");
         return oldName + "_new.jpg";
     }
 }

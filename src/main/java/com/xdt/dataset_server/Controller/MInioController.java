@@ -3,9 +3,9 @@ package com.xdt.dataset_server.Controller;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.github.pagehelper.Page;
+import com.xdt.dataset_server.Server.Impl.BiologyServiceImpl;
 import com.xdt.dataset_server.Server.Impl.BiologySpeciesServiceImpl;
 import com.xdt.dataset_server.Server.Impl.MinioObjectServiceImpl;
-import com.xdt.dataset_server.entity.BiologySpecies;
 import com.xdt.dataset_server.entity.MinioObject;
 import com.xdt.dataset_server.entity.MinioObjectPagination;
 import com.xdt.dataset_server.entity.ObjectInfo;
@@ -16,15 +16,12 @@ import com.xdt.dataset_server.utils.ThumbnailUtil;
 import io.minio.errors.*;
 import io.minio.messages.Bucket;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.units.qual.A;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
-import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -52,28 +49,29 @@ public class MInioController {
 
     private final ThumbnailUtil thumbnailUtil;
 
-    private final BiologySpeciesServiceImpl biologySpeciesService;
+    private final BiologyServiceImpl biologyService;
 
-    public MInioController(MinioUtil minioUtil, MinioObjectServiceImpl minioObjectService, ThumbnailUtil thumbnailUtil, BiologySpeciesServiceImpl biologySpeciesService) {
+    public MInioController(MinioUtil minioUtil, MinioObjectServiceImpl minioObjectService, ThumbnailUtil thumbnailUtil, BiologySpeciesServiceImpl biologySpeciesService, BiologyServiceImpl biologyService) {
         this.minioUtil = minioUtil;
         this.minioObjectService = minioObjectService;
         this.thumbnailUtil = thumbnailUtil;
-        this.biologySpeciesService = biologySpeciesService;
+        this.biologyService = biologyService;
     }
 
     @PostMapping(value = {"insertMinioObject"}, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Result insertMinioObject(String speciesUuid,
                                     @RequestParam("file") MultipartFile file,
                                     HttpServletRequest request){
-
+        //获得种类的全名
+        String name = biologyService.getAllNameBySpeciesUuid(speciesUuid).toString();
 
         Msg msg;
         try {
-            msg = minioUtil.putObject(file, speciesUuid);
-            ObjectInfo objectInfo = minioUtil.statObject(speciesUuid, msg.getMsg2());
+            msg = minioUtil.putObject(file, name.toLowerCase());
+            ObjectInfo objectInfo = minioUtil.statObject(name.toLowerCase(), msg.getMsg2());
 
             //制作缩略图
-            InputStream object = minioUtil.getObject(speciesUuid, objectInfo.getName());
+            InputStream object = minioUtil.getObject(name.toLowerCase(), objectInfo.getName());
             String newName = thumbnailUtil.getThumbnail(object, objectInfo.getName());
             File newFile = new File(newName);
             long fileSize = newFile.length();

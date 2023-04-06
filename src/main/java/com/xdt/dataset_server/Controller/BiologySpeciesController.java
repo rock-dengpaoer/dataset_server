@@ -2,6 +2,7 @@ package com.xdt.dataset_server.Controller;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
+import com.xdt.dataset_server.Server.Impl.BiologyServiceImpl;
 import com.xdt.dataset_server.Server.Impl.BiologySpeciesServiceImpl;
 import com.xdt.dataset_server.entity.BiologySpecies;
 import com.xdt.dataset_server.utils.Gadget;
@@ -9,7 +10,6 @@ import com.xdt.dataset_server.utils.MinioUtil;
 import com.xdt.dataset_server.utils.Msg;
 import com.xdt.dataset_server.utils.Result;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,9 +32,12 @@ public class BiologySpeciesController {
 
     private final MinioUtil minioUtil;
 
-    public BiologySpeciesController(BiologySpeciesServiceImpl biologySpeciesService, MinioUtil minioUtil) {
+    private  final BiologyServiceImpl biologyService;
+
+    public BiologySpeciesController(BiologySpeciesServiceImpl biologySpeciesService, MinioUtil minioUtil, BiologyServiceImpl biologyService) {
         this.biologySpeciesService = biologySpeciesService;
         this.minioUtil = minioUtil;
+        this.biologyService = biologyService;
     }
 
     @PostMapping("insertBiologySpecies")
@@ -61,7 +64,10 @@ public class BiologySpeciesController {
         if(biologySpeciesService.insertBiologySpecies(biologySpecies)){
             log.info("添加成功");
             Msg msg = minioUtil.makeBucket(biologySpecies.getUuid());
-            if(msg.isFlag()){
+
+            //创建储存原图的桶
+            Msg msg1 = minioUtil.makeBucket(biologyService.getAllNameBySpeciesUuid(biologySpecies.getUuid()).toString().toLowerCase());
+            if(msg.isFlag() && msg1.isFlag()){
                 return Result.success();
             }else {
                 log.error(msg.getMsg1());

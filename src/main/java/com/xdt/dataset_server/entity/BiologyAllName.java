@@ -20,9 +20,9 @@ public class BiologyAllName
 
     @Override
     public String toString() {
-        return classLatinName + '_' +
-                orderLatinName + '_' +
-                familyLatinName + '_' +
+        return classLatinName + '-' +
+                orderLatinName + '-' +
+                familyLatinName + '-' +
                 speciesLatinName;
     }
 }
