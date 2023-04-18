@@ -12,6 +12,11 @@ spring:
     multipart:
       max-file-size: 50MB
       max-request-size: 50MB
+  redis:
+    host: 192.168.3.127
+    database: 0
+    port: 6379
+    timeout: 1000ms # 连接超时时间（毫秒）
 
 #minio配置
 #配置访问的地址

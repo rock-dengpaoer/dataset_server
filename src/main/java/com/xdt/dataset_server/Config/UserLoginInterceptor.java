@@ -29,7 +29,7 @@ public class UserLoginInterceptor implements HandlerInterceptor {
             final String token = request.getHeader("authorization");
             if(ObjectUtil.isNull(token)){
                 log.warn("notFindToken");
-                response.getWriter().write(JSONUtil.toJsonStr(Result.error("123", "notFindToken")));
+                response.getWriter().write(JSONUtil.toJsonStr(Result.error("401", "notFindToken")));
                 return false;
             }
 
@@ -37,7 +37,7 @@ public class UserLoginInterceptor implements HandlerInterceptor {
             if(userData == null){
                 //token过期
                 log.warn("tokenOverdue");
-                response.getWriter().write(JSONUtil.toJsonStr(Result.error("123", "tokenOverdue")));
+                response.getWriter().write(JSONUtil.toJsonStr(Result.error("400", "tokenOverdue")));
                 return false;
             }
             log.info("认证成功！");

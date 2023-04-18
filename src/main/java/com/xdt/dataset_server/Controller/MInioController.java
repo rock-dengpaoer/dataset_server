@@ -16,6 +16,7 @@ import com.xdt.dataset_server.utils.ThumbnailUtil;
 import io.minio.errors.*;
 import io.minio.messages.Bucket;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -189,6 +190,7 @@ public class MInioController {
         return Result.success(msg.getMsg1());
     }
 
+    @CachePut("getAllSpeciesUrl")
     @GetMapping("/getAllSpeciesUrl")
     public Result getAllSpeciesUrl(@RequestParam("speciesUuid") String speciesUuid){
         List<MinioObject> minioObjects = minioObjectService.selectAllObjectByBucketName(speciesUuid);

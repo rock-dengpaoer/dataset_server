@@ -7,6 +7,8 @@ import com.xdt.dataset_server.entity.*;
 import com.xdt.dataset_server.utils.Result;
 import com.github.pagehelper.Page;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,6 +42,7 @@ public class PublicController {
     }
 
     /*查询所有纲*/
+    @CachePut("selectAllBioloyClass")
     @GetMapping("/selectAllBioloyClass")
     public Result selectAllBioloyClass(){
         System.out.println("get into selectAllBioloyClass");
@@ -47,6 +50,7 @@ public class PublicController {
     }
 
     /*分页查询所有纲*/
+    @CachePut("selectAllBioloyClassPagination")
     @GetMapping(value = {"/selectAllBioloyClassPagination"})
     public Result selectAllBiologyClassPagination(@RequestParam("currentPage") String currentPage,
                                                   @RequestParam("pageSize") String pageSize) {
@@ -80,6 +84,7 @@ public class PublicController {
     }
 
     /*查询所有目*/
+    @CachePut("selectBiologyOrderByClassUuid")
     @GetMapping("/selectBiologyOrderByClassUuid")
     public Result selectBiologyOrderByClassUuid(@RequestParam("classUuid") String classUuid){
         List<BiologyOrder> biologyOrders = this.biologyOrderService.selectBiologyOrderByClassUuid(classUuid);
@@ -87,6 +92,7 @@ public class PublicController {
     }
 
     /*分页查询所有目*/
+    @CachePut("selectBiologyOrderByClassUuidPagination")
     @GetMapping(value = {"/selectBiologyOrderByClassUuidPagination"})
     public Result selectBiologyOrderByClassUuidPagination(@RequestParam("classUuid") String classUuid,
                                                   @RequestParam("currentPage") String currentPage,
@@ -120,6 +126,7 @@ public class PublicController {
         return Result.success(JSONUtil.toJsonStr(biologyOrderPagination));
     }
 
+    @CachePut("selectAllBiologyFamilyByOrderUuid")
     @GetMapping("/selectAllBiologyFamilyByOrderUuid")
     public Result selectAllBiologyFamilyByOrderUuid(@RequestParam("orderUuid") String orderUuid){
         List<BiologyFamily> biologyFamilies = this.biologyFamilyService.selectAllBiologyFamilyByOrderUuid(orderUuid);
@@ -127,6 +134,7 @@ public class PublicController {
     }
 
     /*分页查询所有科*/
+    @CachePut("selectAllBiologyFamilyByOrderUuidPagination")
     @GetMapping(value = {"/selectAllBiologyFamilyByOrderUuidPagination"})
     public Result selectAllBiologyFamilyByOrderUuidPagination(@RequestParam("orderUuid") String orderUuid,
                                                           @RequestParam("currentPage") String currentPage,
@@ -161,6 +169,7 @@ public class PublicController {
     }
 
     /*查询所有的种， 通过familyUuid*/
+    @CachePut("selectAllBiologySpeciesByFamilyUuid")
     @GetMapping("/selectAllBiologySpeciesByFamilyUuid")
     public Result selectAllBiologySpeciesByFamilyUuid(@RequestParam("familyUuid") String familyUuid){
         List<BiologySpecies> biologySpecies = this.biologySpeciesService.selectAllBiologySpeciesByFamilyUuid(familyUuid);
@@ -168,6 +177,7 @@ public class PublicController {
     }
 
     /*分页查询所有种*/
+    @CachePut("selectAllBiologySpeciesByFamilyUuidPagination")
     @GetMapping(value = {"/selectAllBiologySpeciesByFamilyUuidPagination"})
     public Result selectAllBiologySpeciesByFamilyUuidPagination(@RequestParam("familyUuid") String familyUuid,
                                                               @RequestParam("currentPage") String currentPage,
@@ -202,12 +212,14 @@ public class PublicController {
     }
 
     /*查询所有纲*/
+    @CachePut("countAllBiologySpecies")
     @GetMapping("/countAllBiologySpecies")
     public Result countAllBiologySpecies(){
         System.out.println("get into selectAllBioloySpecies");
         return Result.success(biologySpeciesService.CountAllBiologySpecies());
     }
 
+    @CachePut("getAllNameBySpeciesUuid")
     @GetMapping("/getAllNameBySpeciesUuid")
     public Result getAllNameBySpeciesUuid(@RequestParam String speciesUuid){
         BiologyAllName allName = biologyService.getAllNameBySpeciesUuid(speciesUuid);
