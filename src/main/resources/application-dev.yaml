@@ -29,7 +29,7 @@ minio:
 #mybatis 配置
 mybatis:
   type-aliases-package: com.xdt.dataset_server.entity
-  mapper-locations: classpath:mappers/*Mapper.xml
+  mapper-locations: classpath:mappers/*Mapper.xml, classpath:mappers/small/*Mapper.xml
   #  驼峰命名转换
   configuration:
     map-underscore-to-camel-case: true
