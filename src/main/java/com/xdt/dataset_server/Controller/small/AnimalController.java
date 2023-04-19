@@ -3,15 +3,34 @@ package com.xdt.dataset_server.Controller.small;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
+import com.github.pagehelper.Page;
+import com.xdt.dataset_server.Server.small.Impl.AnimalObjectServiceImpl;
 import com.xdt.dataset_server.Server.small.Impl.AnimalServiceImpl;
+import com.xdt.dataset_server.entity.MinioObject;
+import com.xdt.dataset_server.entity.MinioObjectPagination;
+import com.xdt.dataset_server.entity.ObjectInfo;
 import com.xdt.dataset_server.entity.small.Animal;
+import com.xdt.dataset_server.entity.small.AnimalObjectInfo;
 import com.xdt.dataset_server.utils.MinioUtil;
 import com.xdt.dataset_server.utils.Msg;
 import com.xdt.dataset_server.utils.Result;
+import com.xdt.dataset_server.utils.ThumbnailUtil;
+import io.minio.errors.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.util.List;
 
 @Slf4j
@@ -20,10 +39,14 @@ import java.util.List;
 public class AnimalController {
     private final AnimalServiceImpl animalService;
     private final MinioUtil minioUtil;
+    private final ThumbnailUtil thumbnailUtil;
+    private final AnimalObjectServiceImpl animalObjectService;
 
-    public AnimalController(AnimalServiceImpl animalService, MinioUtil minioUtil) {
+    public AnimalController(AnimalServiceImpl animalService, MinioUtil minioUtil, ThumbnailUtil thumbnailUtil, AnimalObjectServiceImpl animalObjectService) {
         this.animalService = animalService;
         this.minioUtil = minioUtil;
+        this.thumbnailUtil = thumbnailUtil;
+        this.animalObjectService = animalObjectService;
     }
 
     //查询个数
@@ -136,5 +159,95 @@ public class AnimalController {
             return Result.error("300", "没有找到");
         }
         return Result.success(animalList);
+    }
+
+    //上传文件
+    @PostMapping(value = {"insertAnimalObject"}, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Result insertAnimalObject(String uuid,
+                                    @RequestParam("file") MultipartFile file,
+                                    HttpServletRequest request){
+
+        Animal animal = this.animalService.selectAnimalByUuid(uuid);
+
+        Msg msg;
+        try {
+            msg = minioUtil.putObject(file, animal.getNameEn());
+
+
+            //制作缩略图
+            InputStream object = minioUtil.getObject(animal.getNameEn(), msg.getMsg2());
+            String newName = thumbnailUtil.getThumbnail(object, msg.getMsg2());
+            File newFile = new File(newName);
+            long fileSize = newFile.length();
+            InputStream input = Files.newInputStream(Paths.get(newName));
+            Path path = new File(newName).toPath();
+            String mimeType = Files.probeContentType(path);
+            Msg msg1 = minioUtil.putObjectByInputStream(input, uuid, newName, fileSize, mimeType);
+            input.close();
+            if(newFile.delete()){
+                log.warn(newFile.getName() + " 文件已被删除！");
+            }else{
+                log.error(newFile.getName() + " 文件删除失败！");
+            }
+
+
+            String userUuid = request.getAttribute("userUuid").toString();
+
+            AnimalObjectInfo animalObjectInfo = new AnimalObjectInfo();
+            animalObjectInfo.setUuid(IdUtil.simpleUUID());
+            animalObjectInfo.setBucketName(uuid);
+            animalObjectInfo.setName(newFile.getName());
+            animalObjectInfo.setCreateTime(new Date());
+            animalObjectInfo.setUserUuid(userUuid);
+
+            AnimalObjectInfo animalObjectInfo1 = new AnimalObjectInfo();
+            animalObjectInfo1.setUuid(IdUtil.simpleUUID());
+            animalObjectInfo1.setBucketName(animal.getNameEn());
+            animalObjectInfo1.setName(msg.getMsg2());
+            animalObjectInfo1.setCreateTime(new Date());
+            animalObjectInfo1.setUserUuid(userUuid);
+
+
+            if(this.animalObjectService.insert(animalObjectInfo)){
+                this.animalObjectService.insert(animalObjectInfo1);
+                return Result.success("上传成功");
+            }else {
+                return Result.error("300", "失败");
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return Result.error("500", "失败");
+        }
+    }
+
+    //TODO: 分页
+    /*按uuid查询所有img信息, 返回的是缩略图*/
+    @GetMapping(value = {"/selectAllImgInfoByUuid"})
+    public Result SelectAllImgInfoByUuid(
+            @RequestParam("uuid") String uuid,
+            @RequestParam("currentPage") Integer currentPage,
+            @RequestParam("pageSize") Integer pageSize) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+
+
+        List<AnimalObjectInfo> animalObjectInfos = this.animalObjectService.selectByBucketName(uuid);
+
+
+        ///*添加图片url*/
+        /*提取出查询到信息*/
+        for(int i = 0; i < animalObjectInfos.size(); i++){
+            AnimalObjectInfo animalObjectInfo = animalObjectInfos.get(i);
+            log.warn("animalObjectInfo ");
+            log.warn(String.valueOf(animalObjectInfo));
+            //获取分享链接
+            Msg msg = minioUtil.presignifyGetObject(animalObjectInfo.getBucketName(), animalObjectInfo.getName(), 200);
+            //出错图片链接
+            Msg error_msg = minioUtil.presignifyGetObject("picture-notfind", "error.jpg", 20);
+            if(msg.isFlag()){
+                animalObjectInfo.setUrl(msg.getMsg1());
+            }else {
+                animalObjectInfo.setUrl(error_msg.getMsg1());
+            }
+        }
+        return Result.success(animalObjectInfos);
     }
 }

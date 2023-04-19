@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xdt.dataset_server.Dao.small.AnimalObjectDao">
+    <insert id="insert">
+        insert into animal_object (uuid, name, bucket_name, create_time, user_uuid)
+        values (#{uuid}, #{name}, #{bucketName}, #{createTime}, #{userUuid});
+    </insert>
+    <update id="update">
+        update animal_object SET name = #{name}, bucket_name = #{bucketName}, create_time = #{createTime} where uuid = #{uuid};
+    </update>
+    <delete id="del">
+        delete from animal_object where uuid = #{uuid};
+    </delete>
+    <select id="selectByName" resultType="com.xdt.dataset_server.entity.small.AnimalObjectInfo">
+        select uuid, name, bucket_name, create_time, user_uuid from animal_object where name like CONCAT('%',#{name},'%');
+    </select>
+    <select id="selectByBucketName" resultType="com.xdt.dataset_server.entity.small.AnimalObjectInfo">
+        select uuid, name, bucket_name, create_time, user_uuid from animal_object where bucket_name = #{bucketName};
+    </select>
+    <select id="select" resultType="com.xdt.dataset_server.entity.small.AnimalObjectInfo">
+        select  uuid, name, bucket_name, create_time, user_uuid from animal_object where uuid = #{uuid};
+    </select>
+    <select id="countAll" resultType="java.lang.Integer">
+        SELECT  COUNT(*)  from animal_object;
+    </select>
+    <select id="countByUser" resultType="java.lang.Integer">
+        SELECT  COUNT(*)  from animal_object where user_uuid = #{userUuid};
+    </select>
+    <select id="countByBucket" resultType="java.lang.Integer">
+        SELECT  COUNT(*)  from animal_object where bucket_name = #{bucketName};
+    </select>
+</mapper>

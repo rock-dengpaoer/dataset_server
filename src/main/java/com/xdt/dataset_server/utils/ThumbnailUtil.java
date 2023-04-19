@@ -2,12 +2,11 @@ package com.xdt.dataset_server.utils;
 
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.geometry.Positions;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
 import java.io.*;
-import java.util.List;
+
 
 /**
  * @author XDT
@@ -29,4 +28,6 @@ public class ThumbnailUtil {
                 .toFile(oldName + "_new.jpg");
         return oldName + "_new.jpg";
     }
+
+
 }
