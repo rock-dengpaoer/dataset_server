@@ -3,15 +3,15 @@ package com.xdt.dataset_server.Controller.small;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.json.JSONUtil;
 import com.github.pagehelper.Page;
 import com.xdt.dataset_server.Server.small.Impl.AnimalObjectServiceImpl;
 import com.xdt.dataset_server.Server.small.Impl.AnimalServiceImpl;
-import com.xdt.dataset_server.entity.MinioObject;
-import com.xdt.dataset_server.entity.MinioObjectPagination;
-import com.xdt.dataset_server.entity.ObjectInfo;
+import com.xdt.dataset_server.entity.*;
 import com.xdt.dataset_server.entity.small.Animal;
 import com.xdt.dataset_server.entity.small.AnimalObjectInfo;
 import com.xdt.dataset_server.entity.small.AnimalObjectInfoPagination;
+import com.xdt.dataset_server.entity.small.AnimalPagination;
 import com.xdt.dataset_server.utils.MinioUtil;
 import com.xdt.dataset_server.utils.Msg;
 import com.xdt.dataset_server.utils.Result;
@@ -62,6 +62,29 @@ public class AnimalController {
     public Result selectAllAnimal(){
         List<Animal> animalList = this.animalService.selectAllAnimal();
         return Result.success(animalList);
+    }
+
+    //分页查找所有种类
+    @GetMapping(value = {"/selectAllPagination"})
+    public Result selectAllPagination(@RequestParam("currentPage") Integer currentPage,
+                                                  @RequestParam("pageSize") Integer pageSize) {
+
+
+        Page<Animal> animals = this.animalService.selectAllAnimalPagination(currentPage, pageSize);
+        if (ObjectUtil.isNull(animals)) {
+            return Result.notFind("还没有种类");
+        }
+        AnimalPagination animalPagination = new AnimalPagination();
+        /*每页记录数量*/
+        animalPagination.setPageSize(animals.getPageSize());
+        /*总页数*/
+        animalPagination.setTotalCount(animals.getTotal());
+        /*当前页*/
+        animalPagination.setCurrentPageNum(currentPage);
+        /*总记录数*/
+        animalPagination.setTotalPage(animals.getPages());
+        animalPagination.setAnimalList(animals.getResult());
+        return Result.success(JSONUtil.toJsonStr(animalPagination));
     }
 
     //新增种类

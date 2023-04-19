@@ -1,5 +1,7 @@
 package com.xdt.dataset_server.Server.small.Impl;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.xdt.dataset_server.Dao.small.AnimalDao;
 import com.xdt.dataset_server.Server.small.AnimalService;
 import com.xdt.dataset_server.entity.small.Animal;
@@ -19,6 +21,12 @@ public class AnimalServiceImpl implements AnimalService {
     @Override
     public List<Animal> selectAllAnimal() {
         return this.animalDao.selectAllAnimal();
+    }
+
+    @Override
+    public Page<Animal> selectAllAnimalPagination(int currentPage, int pageSize) {
+        Page<Animal> animals = PageHelper.startPage(currentPage, pageSize).doSelectPage(() -> this.animalDao.selectAllAnimal());
+        return animals;
     }
 
     @Override

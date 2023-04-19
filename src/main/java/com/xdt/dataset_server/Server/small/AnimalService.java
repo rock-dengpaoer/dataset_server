@@ -1,5 +1,6 @@
 package com.xdt.dataset_server.Server.small;
 
+import com.github.pagehelper.Page;
 import com.xdt.dataset_server.entity.small.Animal;
 
 import java.util.List;
@@ -7,6 +8,10 @@ import java.util.List;
 public interface AnimalService {
     //查找所有的种类
     List<Animal> selectAllAnimal();
+
+
+    //分页查找所有种类
+    Page<Animal> selectAllAnimalPagination(int currentPage, int pageSize);
 
     //添加种类
     boolean insertAnimal(Animal animal);
