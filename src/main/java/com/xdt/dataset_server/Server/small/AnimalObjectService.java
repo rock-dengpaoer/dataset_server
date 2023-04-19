@@ -1,5 +1,6 @@
 package com.xdt.dataset_server.Server.small;
 
+import com.github.pagehelper.Page;
 import com.xdt.dataset_server.entity.small.AnimalObjectInfo;
 
 import java.util.List;
@@ -16,6 +17,9 @@ public interface AnimalObjectService {
 
     //查找 通过bucket_name
     List<AnimalObjectInfo> selectByBucketName(String bucketName);
+
+    //分页查找 通过bucket_name
+    Page<AnimalObjectInfo> selectByBucketNamePagination(int currentPage, int pageSize, String bucketName);
 
     //查找，通过uuid
     AnimalObjectInfo select(String uuid);

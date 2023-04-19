@@ -1,7 +1,10 @@
 package com.xdt.dataset_server.Server.small.Impl;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.xdt.dataset_server.Dao.small.AnimalObjectDao;
 import com.xdt.dataset_server.Server.small.AnimalObjectService;
+import com.xdt.dataset_server.entity.BiologyClass;
 import com.xdt.dataset_server.entity.small.AnimalObjectInfo;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +37,12 @@ public class AnimalObjectServiceImpl implements AnimalObjectService {
     @Override
     public List<AnimalObjectInfo> selectByBucketName(String bucketName) {
         return this.animalObjectDao.selectByBucketName(bucketName);
+    }
+
+    @Override
+    public Page<AnimalObjectInfo> selectByBucketNamePagination(int currentPage, int pageSize, String bucketName) {
+        Page<AnimalObjectInfo> animalObjectInfos = PageHelper.startPage(currentPage, pageSize).doSelectPage(() -> this.animalObjectDao.selectByBucketName(bucketName));
+        return animalObjectInfos;
     }
 
     @Override

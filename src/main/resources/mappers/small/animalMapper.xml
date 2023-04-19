@@ -21,14 +21,14 @@
     </select>
     <select id="selectAnimalByUuid" resultType="com.xdt.dataset_server.entity.small.Animal">
         select uuid, name_cn, name_en, introduce, create_time, update_time, user_uuid
-        from animal where  uuid = #{uuid};
+        from animal where  uuid = #{uuid}
     </select>
     <select id="selectAnimalByNameCn" resultType="com.xdt.dataset_server.entity.small.Animal">
         select uuid, name_cn, name_en, introduce, create_time, update_time, user_uuid
-        from animal where  name_cn like CONCAT('%',#{nameCn},'%');
+        from animal where  name_cn like CONCAT('%',#{nameCn},'%')
     </select>
     <select id="selectAnimalByNameEn" resultType="com.xdt.dataset_server.entity.small.Animal">
         select uuid, name_cn, name_en, introduce, create_time, update_time, user_uuid
-        from animal where  name_en like CONCAT('%',#{nameEn},'%');
+        from animal where  name_en like CONCAT('%',#{nameEn},'%')
     </select>
 </mapper>

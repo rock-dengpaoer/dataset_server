@@ -11,6 +11,7 @@ import com.xdt.dataset_server.entity.MinioObjectPagination;
 import com.xdt.dataset_server.entity.ObjectInfo;
 import com.xdt.dataset_server.entity.small.Animal;
 import com.xdt.dataset_server.entity.small.AnimalObjectInfo;
+import com.xdt.dataset_server.entity.small.AnimalObjectInfoPagination;
 import com.xdt.dataset_server.utils.MinioUtil;
 import com.xdt.dataset_server.utils.Msg;
 import com.xdt.dataset_server.utils.Result;
@@ -249,5 +250,50 @@ public class AnimalController {
             }
         }
         return Result.success(animalObjectInfos);
+    }
+
+
+    /*按种类英文名查询所有img信息, 返回的是原图， 分页*/
+    @GetMapping(value = {"/selectAllImgInfoByName"})
+    public Result SelectAllImgInfoByName(
+            @RequestParam("bucketName") String  bucketName,
+            @RequestParam("currentPage") Integer currentPage,
+            @RequestParam("pageSize") Integer pageSize){
+
+
+
+        Page<AnimalObjectInfo> animalObjectInfos = this.animalObjectService.selectByBucketNamePagination(currentPage, pageSize, bucketName);
+
+        AnimalObjectInfoPagination animalObjectInfoPagination = new AnimalObjectInfoPagination();
+        //每页记录数量
+        animalObjectInfoPagination.setPageSize(animalObjectInfos.getPageSize());
+        //总页数
+        animalObjectInfoPagination.setTotalCount(animalObjectInfos.getTotal());
+        //当前页
+        animalObjectInfoPagination.setCurrentPageNum(currentPage);
+        //总记录数
+        animalObjectInfoPagination.setTotalPage(animalObjectInfos.getPages());
+
+        ///*添加图片url*/
+        /*提取出查询到信息*/
+        for(int i = 0; i < animalObjectInfos.size(); i++){
+            AnimalObjectInfo animalObjectInfo = animalObjectInfos.get(i);
+            log.warn("animalObjectInfo ");
+            log.warn(String.valueOf(animalObjectInfo));
+            //获取分享链接
+            Msg msg = minioUtil.presignifyGetObject(animalObjectInfo.getBucketName(), animalObjectInfo.getName(), 200);
+            //出错图片链接
+            Msg error_msg = minioUtil.presignifyGetObject("picture-notfind", "error.jpg", 20);
+            if(msg.isFlag()){
+                animalObjectInfo.setUrl(msg.getMsg1());
+            }else {
+                animalObjectInfo.setUrl(error_msg.getMsg1());
+            }
+        }
+
+        animalObjectInfoPagination.setAnimalObjectInfos(animalObjectInfos);
+
+
+        return Result.success(animalObjectInfoPagination);
     }
 }
