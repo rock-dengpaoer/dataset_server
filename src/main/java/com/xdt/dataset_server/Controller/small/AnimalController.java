@@ -221,20 +221,36 @@ public class AnimalController {
         }
     }
 
-    //TODO: 分页
     /*按uuid查询所有img信息, 返回的是缩略图*/
     @GetMapping(value = {"/selectAllImgInfoByUuid"})
     public Result SelectAllImgInfoByUuid(
             @RequestParam("uuid") String uuid,
             @RequestParam("currentPage") Integer currentPage,
-            @RequestParam("pageSize") Integer pageSize) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+            @RequestParam("pageSize") Integer pageSize){
+
+        //拦截不是uuid的进行查询
+        Animal animal = this.animalService.selectAnimalByUuid(uuid);
+        if(ObjectUtil.isNull(animal)){
+            return Result.error("300", "uuid不正确");
+        }
 
 
-        List<AnimalObjectInfo> animalObjectInfos = this.animalObjectService.selectByBucketName(uuid);
 
+        Page<AnimalObjectInfo> animalObjectInfoPage = this.animalObjectService.selectByBucketNamePagination(currentPage, pageSize, uuid);
+
+        AnimalObjectInfoPagination animalObjectInfoPagination = new AnimalObjectInfoPagination();
+        //每页记录数量
+        animalObjectInfoPagination.setPageSize(animalObjectInfoPage.getPageSize());
+        //总页数
+        animalObjectInfoPagination.setTotalCount(animalObjectInfoPage.getTotal());
+        //当前页
+        animalObjectInfoPagination.setCurrentPageNum(currentPage);
+        //总记录数
+        animalObjectInfoPagination.setTotalPage(animalObjectInfoPage.getPages());
 
         ///*添加图片url*/
         /*提取出查询到信息*/
+        List<AnimalObjectInfo> animalObjectInfos = animalObjectInfoPage.getResult();
         for(int i = 0; i < animalObjectInfos.size(); i++){
             AnimalObjectInfo animalObjectInfo = animalObjectInfos.get(i);
             log.warn("animalObjectInfo ");
@@ -249,7 +265,11 @@ public class AnimalController {
                 animalObjectInfo.setUrl(error_msg.getMsg1());
             }
         }
-        return Result.success(animalObjectInfos);
+
+        animalObjectInfoPagination.setAnimalObjectInfos(animalObjectInfos);
+
+
+        return Result.success(animalObjectInfoPagination);
     }
 
 
@@ -262,20 +282,21 @@ public class AnimalController {
 
 
 
-        Page<AnimalObjectInfo> animalObjectInfos = this.animalObjectService.selectByBucketNamePagination(currentPage, pageSize, bucketName);
+        Page<AnimalObjectInfo> animalObjectInfoPage = this.animalObjectService.selectByBucketNamePagination(currentPage, pageSize, bucketName);
 
         AnimalObjectInfoPagination animalObjectInfoPagination = new AnimalObjectInfoPagination();
         //每页记录数量
-        animalObjectInfoPagination.setPageSize(animalObjectInfos.getPageSize());
+        animalObjectInfoPagination.setPageSize(animalObjectInfoPage.getPageSize());
         //总页数
-        animalObjectInfoPagination.setTotalCount(animalObjectInfos.getTotal());
+        animalObjectInfoPagination.setTotalCount(animalObjectInfoPage.getTotal());
         //当前页
         animalObjectInfoPagination.setCurrentPageNum(currentPage);
         //总记录数
-        animalObjectInfoPagination.setTotalPage(animalObjectInfos.getPages());
+        animalObjectInfoPagination.setTotalPage(animalObjectInfoPage.getPages());
 
         ///*添加图片url*/
         /*提取出查询到信息*/
+        List<AnimalObjectInfo> animalObjectInfos = animalObjectInfoPage.getResult();
         for(int i = 0; i < animalObjectInfos.size(); i++){
             AnimalObjectInfo animalObjectInfo = animalObjectInfos.get(i);
             log.warn("animalObjectInfo ");
