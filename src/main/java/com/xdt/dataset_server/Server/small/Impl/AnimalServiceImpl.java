@@ -7,6 +7,7 @@ import com.xdt.dataset_server.Server.small.AnimalService;
 import com.xdt.dataset_server.entity.small.Animal;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 
 @Service

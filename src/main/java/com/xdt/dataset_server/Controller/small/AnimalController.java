@@ -94,8 +94,15 @@ public class AnimalController {
             return Result.error("300", "种类名不能未空");
         }
 
-        if(!animal.getNameEn().matches("^[0-9a-zA-Z]+$")){
+        if(!animal.getNameEn().matches("^[0-9a-z\\-^]+$")){
             return Result.error("300", "种类名不符合命名规范");
+        }
+
+        List<Animal> animalList = this.animalService.selectAnimalByNameCn(animal.getNameCn());
+        List<Animal> animalList1 = this.animalService.selectAnimalByNameEn(animal.getNameEn());
+
+        if(animalList.size() != 0 || animalList1.size() != 0){
+            return Result.error("300", "已经存在该种类！");
         }
 
         //设置uuid
