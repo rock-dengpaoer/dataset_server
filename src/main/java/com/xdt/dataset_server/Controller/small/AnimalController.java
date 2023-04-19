@@ -18,6 +18,7 @@ import com.xdt.dataset_server.utils.Result;
 import com.xdt.dataset_server.utils.ThumbnailUtil;
 import io.minio.errors.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,6 +34,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @RestController
@@ -346,5 +348,27 @@ public class AnimalController {
 
 
         return Result.success(animalObjectInfoPagination);
+    }
+
+    //TODO 将删除的记录保存在另一张表上。
+    //删除图片
+    @DeleteMapping("/delObject")
+    public Result delObject(@RequestBody AnimalObjectInfo animalObjectInfo, HttpServletRequest request){
+        String userUuid = request.getAttribute("userUuid").toString();
+        if(!Objects.equals(userUuid, animalObjectInfo.getUserUuid())){
+            return Result.error("300", "您没有权限删除该张照片，请联系管理员删除");
+        }
+
+        //从数据库中删除该图片
+        if(this.animalObjectService.del(animalObjectInfo.getUuid())){
+            String filename = animalObjectInfo.getName().split("_new.jpg")[0] + ".jpg";
+            log.info("filename is " + filename);
+            if(this.animalObjectService.delByName(filename)){
+                return Result.success("删除成功！");
+            }else {
+                return Result.error("300", "删除原图失败");
+            }
+        }
+        return Result.error("300", "删除缩略图失败");
     }
 }

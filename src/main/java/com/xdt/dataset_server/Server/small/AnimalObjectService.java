@@ -12,6 +12,9 @@ public interface AnimalObjectService {
     //删除
     boolean del(String uuid);
 
+    //删除-通过name
+    boolean delByName(String name);
+
     //查找-模糊查找 通过name
     List<AnimalObjectInfo> selectByName(String name);
 

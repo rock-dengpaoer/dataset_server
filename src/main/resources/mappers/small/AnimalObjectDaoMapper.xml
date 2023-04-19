@@ -13,6 +13,9 @@
     <delete id="del">
         delete from animal_object where uuid = #{uuid};
     </delete>
+    <delete id="delByName">
+        delete from animal_object where name = #{name};
+    </delete>
     <select id="selectByName" resultType="com.xdt.dataset_server.entity.small.AnimalObjectInfo">
         select uuid, name, bucket_name, create_time, user_uuid from animal_object where name like CONCAT('%',#{name},'%');
     </select>

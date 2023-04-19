@@ -30,6 +30,11 @@ public class AnimalObjectServiceImpl implements AnimalObjectService {
     }
 
     @Override
+    public boolean delByName(String name) {
+        return this.animalObjectDao.delByName(name);
+    }
+
+    @Override
     public List<AnimalObjectInfo> selectByName(String name) {
         return this.animalObjectDao.selectByName(name);
     }
